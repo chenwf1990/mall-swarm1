@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.macro.mall.dao.PmsProductCategoryDao">
+    <resultMap id="listWithChildrenMap" type="com.macro.mall.dto.PmsProductCategoryWithChildrenItem"
+               extends="com.macro.mall.mapper.PmsProductCategoryMapper.BaseResultMap">
+        <collection property="children" resultMap="com.macro.mall.mapper.PmsProductCategoryMapper.BaseResultMap"
+                    columnPrefix="child_"></collection>
+    </resultMap>
+    <select id="listWithChildren" resultMap="listWithChildrenMap">
+        select
+            c1.id,
+            c1.name,
+            c2.id   child_id,
+            c2.name child_name
+        from pms_product_category c1 left join pms_product_category c2 on c1.id = c2.parent_id
+        where c1.parent_id = 0
+    </select>
+
+    <select id="getListHistory" resultType="com.macro.mall.bo.CategoryHistoryVo" parameterType="java.lang.Long">
+    SELECT
+        his.product_category_id_i as productCategoryIdI,
+        (select pc.`name` from pms_product_category pc where pc.id = his.product_category_id_i) as productCategoryIdIName,
+        his.product_category_id_ii as productCategoryIdIi,
+        (select pc.`name` from pms_product_category pc where pc.id = his.product_category_id_ii) as productCategoryIdIiName,
+        his.product_category_id_iii as productCategoryIdIii,
+        (select pc.`name` from pms_product_category pc where pc.id = his.product_category_id_iii) as productCategoryIdIiName
+    FROM
+        pms_product_category_history his
+        and his.user_id = #{userId}
+        and his.delete_status = 0
+        ORDER BY his.update_date desc
+        LIMIT 15
+    </select>
+</mapper>

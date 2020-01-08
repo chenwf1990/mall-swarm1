@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.macro.mall.dao.PmsProductRecommendDao">
+
+    <select id="productRecommendList" resultType="java.lang.Long" parameterType="com.macro.mall.bo.ProductRecommendVo">
+       select
+        pr.id,
+        pr.product_id,
+        pr.recommend_product_id,
+        p.`name`,
+        (select ss.price from pms_sku_stock ss where ss.delete_status = 0 and ss.product_id = pr.recommend_product_id limit 1) as price,
+        (select sum(ss1.stock) from pms_sku_stock ss1 where ss1.delete_status = 0 and ss1.product_id = pr.recommend_product_id) as stock
+        from pms_product_recommend pr
+        join pms_product p on pr.recommend_product_id = p.id
+        where pr.product_id = #{productId}
+        and pr.delete_status = 0
+        and p.delete_status = 0
+
+    </select>
+
+</mapper>
